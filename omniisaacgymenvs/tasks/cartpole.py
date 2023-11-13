@@ -53,7 +53,13 @@ class CartpoleTask(RLTask):
         self._sim_config = sim_config
         self._cfg = sim_config.config
         self._task_cfg = sim_config.task_config
-
+        print("Sim config : ",sim_config)
+        print()
+        print("Config : ", sim_config.config)
+        print()
+        print("Task config : ", sim_config.task_config) 
+        # print("Observartion space : ", self.observation_space)
+        
         self._num_envs = self._task_cfg["env"]["numEnvs"]
         self._env_spacing = self._task_cfg["env"]["envSpacing"]
         self._cartpole_positions = torch.tensor([0.0, 0.0, 2.0])
@@ -146,6 +152,7 @@ class CartpoleTask(RLTask):
     def post_reset(self):
         self._cart_dof_idx = self._cartpoles.get_dof_index("cartJoint")
         self._pole_dof_idx = self._cartpoles.get_dof_index("poleJoint")
+        print("DOF idcs : ", self._cart_dof_idx, self._pole_dof_idx)
         # randomize all envs
         indices = torch.arange(self._cartpoles.count, dtype=torch.int64, device=self._device)
         self.reset_idx(indices)

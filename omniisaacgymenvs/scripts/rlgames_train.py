@@ -108,7 +108,8 @@ def parse_hydra_configs(cfg: DictConfig):
         cfg.checkpoint = retrieve_checkpoint_path(cfg.checkpoint)
         if cfg.checkpoint is None:
             quit()
-
+    # print("#############$$$$$$$$$$$$$$$$$$$$$$$$$")
+    # print("Config is : ", cfg) 
     cfg_dict = omegaconf_to_dict(cfg)
     print_dict(cfg_dict)
 

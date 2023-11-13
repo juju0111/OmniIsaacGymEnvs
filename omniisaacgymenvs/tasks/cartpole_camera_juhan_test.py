@@ -36,21 +36,19 @@ from omni.isaac.core.utils.prims import get_prim_at_path
 from omni.isaac.core.utils.stage import get_current_stage
 
 from omniisaacgymenvs.tasks.base.rl_task import RLTask
-from omniisaacgymenvs.tasks.cartpole import CartpoleTask
+from omniisaacgymenvs.tasks.cartpole_camera_juhan_test import CartpoleJuhanTestTask
 from omniisaacgymenvs.robots.articulations.cartpole import Cartpole
 
-
-class CartpoleCameraTask(CartpoleTask):
+class CartpoleCameraJuhanTestTask(CartpoleJuhanTestTask):
     def __init__(self, name, sim_config, env, offset=None) -> None:
-
         self.update_config(sim_config)
         self._max_episode_length = 500
 
+        # observation 차원 w*h*3 (high dim)        
         self._num_observations = self.camera_width * self.camera_height * 3
         self._num_actions = 1
-
-        # use multi-dimensional observation for camera RGB
-        # High Dim 
+        
+        # use multi-dimensional observation for camera RGB 
         self.observation_space = spaces.Box(
             np.ones((self.camera_width, self.camera_height, 3), dtype=np.float32) * -np.Inf, 
             np.ones((self.camera_width, self.camera_height, 3), dtype=np.float32) * np.Inf)
@@ -75,67 +73,3 @@ class CartpoleCameraTask(CartpoleTask):
         
         self.camera_channels = 3
         self._export_images = self._task_cfg["env"]["exportImages"]
-
-    def cleanup(self) -> None:
-        # initialize remaining buffers
-        RLTask.cleanup(self)
-
-        # override observation buffer for camera data
-        self.obs_buf = torch.zeros(
-            (self.num_envs, self.camera_width, self.camera_height, 3), device=self.device, dtype=torch.float)
-
-    def set_up_scene(self, scene) -> None:
-        self.get_cartpole()
-
-        RLTask.set_up_scene(self, scene)
-
-        # start replicator to capture image data
-        self.rep.orchestrator._orchestrator._is_started = True
-
-        # set up cameras
-        self.render_products = []
-        env_pos = self._env_pos.cpu()
-        for i in range(self._num_envs):
-            camera = self.rep.create.camera(
-                position=(-4.2 + env_pos[i][0], env_pos[i][1], 3.0), look_at=(env_pos[i][0], env_pos[i][1], 2.55))
-            render_product = self.rep.create.render_product(camera, resolution=(self.camera_width, self.camera_height))
-            self.render_products.append(render_product)
-        
-        print("Env Pose : ",env_pos)
-        print("Camera render_products : ", self.render_products)
-
-        # initialize pytorch writer for vectorized collection
-        self.pytorch_listener = self.PytorchListener()
-        self.pytorch_writer = self.rep.WriterRegistry.get("PytorchWriter")
-        self.pytorch_writer.initialize(listener=self.pytorch_listener, device="cuda")
-        self.pytorch_writer.attach(self.render_products)
-
-        self._cartpoles = ArticulationView(
-            prim_paths_expr="/World/envs/.*/Cartpole", name="cartpole_view", reset_xform_properties=False
-        )
-        scene.add(self._cartpoles)
-        return
-
-    def get_observations(self) -> dict:
-        dof_pos = self._cartpoles.get_joint_positions(clone=False)
-        dof_vel = self._cartpoles.get_joint_velocities(clone=False)
-
-        self.cart_pos = dof_pos[:, self._cart_dof_idx]
-        self.cart_vel = dof_vel[:, self._cart_dof_idx]
-        self.pole_pos = dof_pos[:, self._pole_dof_idx]
-        self.pole_vel = dof_vel[:, self._pole_dof_idx]
-
-        # retrieve RGB data from all render products
-        images = self.pytorch_listener.get_rgb_data()
-        # print("Image shape : ", images.shape)
-        if images is not None:
-            if self._export_images:
-                from torchvision.utils import save_image, make_grid
-                img = images/255
-                save_image(make_grid(img, nrows = 2), 'cartpole_export.png')
-
-            self.obs_buf = torch.swapaxes(images, 1, 3).clone().float()/255.0
-        else:
-            print("Image tensor is NONE!")
-
-        return self.obs_buf

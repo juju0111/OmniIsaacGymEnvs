@@ -9,6 +9,9 @@ env:
 
   cameraWidth: 240
   cameraHeight: 160
+
+  # cameraWidth: 120
+  # cameraHeight: 80
   exportImages: False
 
 sim:

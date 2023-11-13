@@ -34,6 +34,7 @@ def import_tasks():
     from omniisaacgymenvs.tasks.anymal_terrain import AnymalTerrainTask
     from omniisaacgymenvs.tasks.ball_balance import BallBalanceTask
     from omniisaacgymenvs.tasks.cartpole import CartpoleTask
+    from omniisaacgymenvs.tasks.cartpole_juhan_test import CartpoleJuhanTestTask
     from omniisaacgymenvs.tasks.cartpole_camera import CartpoleCameraTask
     from omniisaacgymenvs.tasks.crazyflie import CrazyflieTask
     from omniisaacgymenvs.tasks.factory.factory_task_nut_bolt_pick import FactoryTaskNutBoltPick
@@ -58,6 +59,7 @@ def import_tasks():
         "AnymalTerrain": AnymalTerrainTask,
         "BallBalance": BallBalanceTask,
         "Cartpole": CartpoleTask,
+        "CartpoleJuhanTest": CartpoleJuhanTestTask,
         "CartpoleCamera": CartpoleCameraTask,
         "FactoryTaskNutBoltPick": FactoryTaskNutBoltPick,
         "FactoryTaskNutBoltPlace": FactoryTaskNutBoltPlace,
@@ -87,7 +89,10 @@ def initialize_task(config, env, init_sim=True):
 
     sim_config = SimConfig(config)
     task_map, task_map_warp = import_tasks()
-
+    # print("#########################")
+    # print("sim_config : ",sim_config)
+    # print("#########################")
+    # print(task_map)
     cfg = sim_config.config
     if cfg["warp"]:
         task_map = task_map_warp
