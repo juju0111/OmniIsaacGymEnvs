@@ -44,6 +44,7 @@ class BalanceBot(Robot):
         usd_path: Optional[str] = None,
         translation: Optional[np.ndarray] = None,
         orientation: Optional[np.ndarray] = None,
+        scale:Optional[np.ndarray] = None,
     ) -> None:
         """[summary]"""
 
@@ -64,6 +65,7 @@ class BalanceBot(Robot):
             translation=translation,
             orientation=orientation,
             articulation_controller=None,
+            scale=scale
         )
 
         for j in range(3):

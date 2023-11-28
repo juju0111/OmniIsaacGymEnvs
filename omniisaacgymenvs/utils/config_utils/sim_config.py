@@ -431,6 +431,7 @@ class SimConfig:
     def apply_articulation_settings(self, name, prim, cfg):
         from pxr import PhysxSchema, UsdPhysics
 
+        print(name , "apply physics parameter ! ")
         stage = omni.usd.get_context().get_stage()
 
         is_articulation = False

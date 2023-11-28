@@ -75,7 +75,7 @@ class CartpoleCameraTask(CartpoleTask):
         
         self.camera_channels = 3
         self._export_images = self._task_cfg["env"]["exportImages"]
-
+        
     def cleanup(self) -> None:
         # initialize remaining buffers
         RLTask.cleanup(self)
@@ -96,6 +96,8 @@ class CartpoleCameraTask(CartpoleTask):
         self.render_products = []
         env_pos = self._env_pos.cpu()
         for i in range(self._num_envs):
+            # 각 환경당 캠 선언 후 이 캠을 어느 방향으로 바라 보라고도 주어줌 
+            # 이미 선언된 cam을 가져와서  rep 못하나? 가능 
             camera = self.rep.create.camera(
                 position=(-4.2 + env_pos[i][0], env_pos[i][1], 3.0), look_at=(env_pos[i][0], env_pos[i][1], 2.55))
             render_product = self.rep.create.render_product(camera, resolution=(self.camera_width, self.camera_height))
@@ -107,9 +109,11 @@ class CartpoleCameraTask(CartpoleTask):
         # initialize pytorch writer for vectorized collection
         self.pytorch_listener = self.PytorchListener()
         self.pytorch_writer = self.rep.WriterRegistry.get("PytorchWriter")
-        self.pytorch_writer.initialize(listener=self.pytorch_listener, device="cuda")
+        print("Writer : ",self.pytorch_writer)
+        self.pytorch_writer.initialize(listener=self.pytorch_listener, device="cuda", depth=True)
         self.pytorch_writer.attach(self.render_products)
 
+        print(" output dir : ", self.pytorch_writer._output_dir)
         self._cartpoles = ArticulationView(
             prim_paths_expr="/World/envs/.*/Cartpole", name="cartpole_view", reset_xform_properties=False
         )
@@ -127,7 +131,9 @@ class CartpoleCameraTask(CartpoleTask):
 
         # retrieve RGB data from all render products
         images = self.pytorch_listener.get_rgb_data()
-        # print("Image shape : ", images.shape)
+        depths = self.pytorch_listener.get_depth_data()
+        print("Image shape : ", images.shape)
+        print("depths shape : ", depths.shape)
         if images is not None:
             if self._export_images:
                 from torchvision.utils import save_image, make_grid

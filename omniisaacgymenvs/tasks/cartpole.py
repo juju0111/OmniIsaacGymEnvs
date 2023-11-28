@@ -122,8 +122,11 @@ class CartpoleTask(RLTask):
         actions = actions.to(self._device)
 
         forces = torch.zeros((self._cartpoles.count, self._cartpoles.num_dof), dtype=torch.float32, device=self._device)
-        forces[:, self._cart_dof_idx] = self._max_push_effort * actions[:, 0]
 
+        # print(self._cartpoles.count)
+        
+        forces[:, self._cart_dof_idx] = self._max_push_effort * actions[:, 0]
+        # print("forces : ",  self._max_push_effort, actions)
         indices = torch.arange(self._cartpoles.count, dtype=torch.int32, device=self._device)
         self._cartpoles.set_joint_efforts(forces, indices=indices)
 

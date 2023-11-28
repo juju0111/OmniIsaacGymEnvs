@@ -253,6 +253,7 @@ class FrankaCabinetTask(RLTask):
         drawer_pos, drawer_rot = self._cabinets._drawers.get_world_poses(clone=False)
         franka_dof_pos = self._frankas.get_joint_positions(clone=False)
         franka_dof_vel = self._frankas.get_joint_velocities(clone=False)
+        franka_dof_torque = self._frankas.get_measured_joint_forces()
         self.cabinet_dof_pos = self._cabinets.get_joint_positions(clone=False)
         self.cabinet_dof_vel = self._cabinets.get_joint_velocities(clone=False)
         self.franka_dof_pos = franka_dof_pos
@@ -294,6 +295,7 @@ class FrankaCabinetTask(RLTask):
             dim=-1,
         )
 
+        print("observation shape : ",dof_pos_scaled, franka_dof_vel.shape, to_target.shape, self.cabinet_dof_pos[:,3].shape)
         observations = {self._frankas.name: {"obs_buf": self.obs_buf}}
         return observations
 
@@ -306,11 +308,16 @@ class FrankaCabinetTask(RLTask):
             self.reset_idx(reset_env_ids)
 
         self.actions = actions.clone().to(self._device)
+        print("self franka dof targets : ", self.franka_dof_targets[0])
+        print("action : ", (self.franka_dof_speed_scales * self.dt * self.actions * self.action_scale)[0])
+        # 여기는 현재 dof_position에 action 값 더해서 next dof_position으로 사용!! 
         targets = self.franka_dof_targets + self.franka_dof_speed_scales * self.dt * self.actions * self.action_scale
         self.franka_dof_targets[:] = tensor_clamp(targets, self.franka_dof_lower_limits, self.franka_dof_upper_limits)
         env_ids_int32 = torch.arange(self._frankas.count, dtype=torch.int32, device=self._device)
 
         self._frankas.set_joint_position_targets(self.franka_dof_targets, indices=env_ids_int32)
+
+        # print("count : ",self._frankas.count , "target :",self.franka_dof_targets[:,7:] )
 
     def reset_idx(self, env_ids):
         indices = env_ids.to(dtype=torch.int32)
@@ -461,7 +468,6 @@ class FrankaCabinetTask(RLTask):
         joint_positions,
         finger_close_reward_scale,
     ):
-        # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, int, float, float, float, float, float, float, float, float, Tensor) -> Tuple[Tensor, Tensor]
 
         # distance from hand to the drawer
         d = torch.norm(franka_grasp_pos - drawer_grasp_pos, p=2, dim=-1)

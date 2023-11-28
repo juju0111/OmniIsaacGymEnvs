@@ -28,6 +28,7 @@ class Franka(Robot):
         usd_path: Optional[str] = None,
         translation: Optional[torch.tensor] = None,
         orientation: Optional[torch.tensor] = None,
+        custom_prim_name: Optional[str] = None,
     ) -> None:
         """[summary]"""
 
@@ -66,13 +67,19 @@ class Franka(Robot):
         ]
 
         drive_type = ["angular"] * 7 + ["linear"] * 2
-        default_dof_pos = [math.degrees(x) for x in [0.0, -1.0, 0.0, -2.2, 0.0, 2.4, 0.8]] + [0.02, 0.02]
+        default_dof_pos = [math.degrees(x) for x in [0.0, -1.0, 0.0, -1.2, 0.0, 0.0, 0.8]] + [0.02, 0.02]
         stiffness = [400 * np.pi / 180] * 7 + [10000] * 2
         damping = [80 * np.pi / 180] * 7 + [100] * 2
         max_force = [87, 87, 87, 87, 12, 12, 12, 200, 200]
         max_velocity = [math.degrees(x) for x in [2.175, 2.175, 2.175, 2.175, 2.61, 2.61, 2.61]] + [0.2, 0.2]
+        self.max_force = max_force
 
         for i, dof in enumerate(dof_paths):
+            
+            if custom_prim_name:
+                dof = custom_prim_name + "/" + dof 
+
+            print(" prim path : ", f"{self.prim_path}/{dof}")
             set_drive(
                 prim_path=f"{self.prim_path}/{dof}",
                 drive_type=drive_type[i],

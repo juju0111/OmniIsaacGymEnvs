@@ -33,6 +33,7 @@ def import_tasks():
     from omniisaacgymenvs.tasks.anymal import AnymalTask
     from omniisaacgymenvs.tasks.anymal_terrain import AnymalTerrainTask
     from omniisaacgymenvs.tasks.ball_balance import BallBalanceTask
+    from omniisaacgymenvs.tasks.banana_balance import BananaBalanceTask
     from omniisaacgymenvs.tasks.cartpole import CartpoleTask
     from omniisaacgymenvs.tasks.cartpole_juhan_test import CartpoleJuhanTestTask
     from omniisaacgymenvs.tasks.cartpole_camera import CartpoleCameraTask
@@ -41,6 +42,8 @@ def import_tasks():
     from omniisaacgymenvs.tasks.factory.factory_task_nut_bolt_place import FactoryTaskNutBoltPlace
     from omniisaacgymenvs.tasks.factory.factory_task_nut_bolt_screw import FactoryTaskNutBoltScrew
     from omniisaacgymenvs.tasks.franka_cabinet import FrankaCabinetTask
+    from omniisaacgymenvs.tasks.franka_throw import FrankaRAIThrowTask
+    from omniisaacgymenvs.tasks.franka_throw_replicator import FrankaRAIThrow_RepTask
     from omniisaacgymenvs.tasks.franka_deformable import FrankaDeformableTask
     from omniisaacgymenvs.tasks.humanoid import HumanoidLocomotionTask
     from omniisaacgymenvs.tasks.ingenuity import IngenuityTask
@@ -58,6 +61,7 @@ def import_tasks():
         "Anymal": AnymalTask,
         "AnymalTerrain": AnymalTerrainTask,
         "BallBalance": BallBalanceTask,
+        "BananaBalance": BananaBalanceTask,
         "Cartpole": CartpoleTask,
         "CartpoleJuhanTest": CartpoleJuhanTestTask,
         "CartpoleCamera": CartpoleCameraTask,
@@ -65,6 +69,8 @@ def import_tasks():
         "FactoryTaskNutBoltPlace": FactoryTaskNutBoltPlace,
         "FactoryTaskNutBoltScrew": FactoryTaskNutBoltScrew,
         "FrankaCabinet": FrankaCabinetTask,
+        "FrankaRAIThrow": FrankaRAIThrowTask,
+        "FrankaRAIThrow_Rep": FrankaRAIThrow_RepTask,
         "FrankaDeformable": FrankaDeformableTask,
         "Humanoid": HumanoidLocomotionTask,
         "Ingenuity": IngenuityTask,
